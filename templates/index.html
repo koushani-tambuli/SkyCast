@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09132c">
+  <meta name="description" content="SkyCast brings clear, current weather conditions for cities around the world.">
+  <title>SkyCast — Weather, anywhere.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+  <div class="page-glow page-glow-one" aria-hidden="true"></div>
+  <div class="page-glow page-glow-two" aria-hidden="true"></div>
+  <header class="site-header" id="home">
+    <a class="brand" href="#home" aria-label="SkyCast home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 36 36" fill="none"><path d="M10.5 24.7h15.1a5.4 5.4 0 0 0 .4-10.8A8.3 8.3 0 0 0 10 16.3a4.2 4.2 0 0 0 .5 8.4Z" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 5.4v2.3M7 10l1.7 1.7m18.7-1.6-1.7 1.7" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+      </span>
+      <span>skycast</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="nav-link active" href="#home">Home</a>
+      <a class="nav-link" href="#weather-section">Forecast</a>
+      <a class="nav-link" href="#about">About</a>
+    </nav>
+    <div class="unit-switch" role="group" aria-label="Temperature units">
+      <button class="unit-button is-selected" type="button" data-unit="c" aria-pressed="true">°C</button>
+      <button class="unit-button" type="button" data-unit="f" aria-pressed="false">°F</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR WORLD, IN THE CLEAR</div>
+        <h1 id="hero-title">Weather,<br><span>anywhere.</span></h1>
+        <p class="hero-subtitle">Discover the weather around the world.</p>
+        <form class="search-form" id="search-form" role="search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <label class="sr-only" for="city-input">Search for a city</label>
+          <input id="city-input" name="city" type="search" placeholder="Enter a city..." autocomplete="off" required>
+          <button class="search-button" type="submit">
+            <span>Search</span>
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.2 10h11.6m-4.8-4.8 4.8 4.8-4.8 4.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <div class="search-message" id="search-message" role="status" aria-live="polite"></div>
+        <div class="popular-row">
+          <span>Try</span>
+          <button type="button" class="city-chip" data-city="Tokyo">Tokyo</button>
+          <button type="button" class="city-chip" data-city="Paris">Paris</button>
+          <button type="button" class="city-chip" data-city="New York">New York</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="sun-halo"></div>
+        <div class="sun"></div>
+        <div class="cloud cloud-back"></div>
+        <div class="cloud cloud-front"></div>
+        <span class="sparkle sparkle-one">✦</span>
+        <span class="sparkle sparkle-two">✧</span>
+        <span class="sparkle sparkle-three">·</span>
+        <div class="art-caption"><span class="caption-line"></span> A little more clarity, every day</div>
+      </div>
+    </section>
+
+    <section class="weather-section" id="weather-section" aria-live="polite">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">LIVE CONDITIONS</p>
+          <h2>Your weather, at a glance</h2>
+        </div>
+        <div class="updated-label" id="updated-label"></div>
+      </div>
+
+      <div class="loading-state" id="loading-state" hidden>
+        <span class="loader"></span>
+        <span>Finding your forecast...</span>
+      </div>
+      <div class="error-card" id="error-card" role="alert" hidden>
+        <span class="error-mark">!</span>
+        <div><strong>We couldn't find that place</strong><p id="error-text">Check the spelling and try again.</p></div>
+        <button id="error-dismiss" type="button" aria-label="Dismiss error">×</button>
+      </div>
+
+      <div class="welcome-card" id="welcome-card">
+        <div class="welcome-orb" aria-hidden="true"><span>☀</span></div>
+        <div class="welcome-text">
+          <span class="welcome-label">A WORLD OF WEATHER</span>
+          <h3>Somewhere on your mind?</h3>
+          <p>Search any city to see what's happening under its sky right now.</p>
+        </div>
+        <div class="welcome-decoration" aria-hidden="true">✦</div>
+      </div>
+
+      <div class="dashboard" id="dashboard" hidden>
+        <article class="current-card">
+          <div class="current-topline">
+            <div class="location">
+              <span class="location-pin" aria-hidden="true">
+                <svg viewBox="0 0 20 20" fill="none"><path d="M16 8.4c0 4.2-6 9-6 9s-6-4.8-6-9a6 6 0 1 1 12 0Z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="8.3" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+              </span>
+              <div><h3 id="city-name"></h3><p id="country-name"></p></div>
+            </div>
+            <span class="live-pill"><span></span> LIVE</span>
+          </div>
+          <div class="current-weather">
+            <div class="temperature-wrap">
+              <div class="temperature" id="temperature"></div>
+              <p class="condition" id="condition"></p>
+            </div>
+            <div class="weather-visual" id="weather-visual" aria-hidden="true"></div>
+          </div>
+          <div class="current-footer">
+            <span><span class="footer-icon">◷</span> <span id="last-updated"></span></span>
+            <span class="current-divider"></span>
+            <span>Current conditions</span>
+          </div>
+        </article>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-icon humidity-icon">≈</span><span class="metric-label">HUMIDITY</span></div>
+            <div class="metric-value" id="humidity"></div>
+            <div class="metric-foot"><span class="metric-dot blue"></span> Relative humidity</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-icon wind-icon">↗</span><span class="metric-label">WIND SPEED</span></div>
+            <div class="metric-value" id="wind-speed"></div>
+            <div class="metric-foot"><span class="metric-dot violet"></span> Steady breeze</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-icon temperature-icon">☼</span><span class="metric-label">TEMPERATURE</span></div>
+            <div class="metric-value" id="temperature-card"></div>
+            <div class="metric-foot"><span class="metric-dot blue"></span> Current air temperature</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-icon feels-icon">◉</span><span class="metric-label">FEELS LIKE</span></div>
+            <div class="metric-value" id="feels-like"></div>
+            <div class="metric-foot"><span class="metric-dot peach"></span> What it feels like</div>
+          </article>
+        </div>
+      </div>
+
+      <div class="recent-section" id="recent-section" hidden>
+        <div class="recent-heading"><h3>Recent searches</h3><button type="button" id="clear-history">Clear history</button></div>
+        <div class="recent-list" id="recent-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="about">
+    <a class="brand footer-brand" href="#home"><span class="brand-mark" aria-hidden="true">☁</span><span>skycast</span></a>
+    <p>Clear skies start with a little curiosity.</p>
+    <span class="footer-credit">WEATHER, MADE SIMPLE <span>✦</span></span>
+  </footer>
+</body>
+</html>
